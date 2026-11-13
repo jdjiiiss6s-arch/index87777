@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>منصة خدماتي | Khadamati</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-color: #0d0f12;
+      --card-bg: rgba(22, 27, 34, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary-blue: #3b82f6;
+      --primary-hover: #2563eb;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --success-color: #10b981;
+      --danger-color: #ef4444;
+      --warning-color: #f59e0b;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 650px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 30px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    header { text-align: center; margin-bottom: 25px; }
+    header h1 { font-size: 1.8rem; color: #fff; margin-bottom: 6px; }
+    header p { color: var(--text-muted); font-size: 0.95rem; }
+
+    .screen { display: none; }
+    .screen.active { display: block; animation: fadeIn 0.3s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .role-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .role-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 25px 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .role-card:hover {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: var(--primary-blue);
+      transform: translateY(-3px);
+    }
+
+    .role-card .icon { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+    .role-card h3 { font-size: 1.1rem; color: #fff; }
+
+    .form-group { margin-bottom: 16px; }
+    label { display: block; margin-bottom: 6px; font-size: 0.9rem; color: var(--text-muted); }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus { border-color: var(--primary-blue); }
+    select option { background: #161b22; color: #fff; }
+
+    .location-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      width: 100%;
+      transition: all 0.2s ease;
+    }
+    .location-btn:hover { background: rgba(255, 255, 255, 0.1); }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--primary-blue);
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s ease;
+    }
+    .btn-submit:hover { background: var(--primary-hover); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .btn-back {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-bottom: 15px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn-back:hover { color: #fff; }
+
+    /* قائمة طلبات الحرفي */
+    .orders-list { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+    .order-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      transition: border-color 0.2s ease;
+    }
+    .order-item.accepted {
+      border-color: var(--success-color);
+      background: rgba(16, 185, 129, 0.05);
+    }
+    .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: bold; }
+    .order-badge { background: rgba(59, 130, 246, 0.2); color: var(--primary-blue); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
+    .order-desc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px; line-height: 1.5; }
+    
+    .order-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-top: 1px solid var(--card-border);
+      padding-top: 10px;
+    }
+
+    .action-link {
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 6px 12px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 500;
+    }
+    .phone-link { background: rgba(59, 130, 246, 0.15); color: var(--primary-blue); }
+    .map-link { background: rgba(245, 158, 11, 0.15); color: var(--warning-color); }
+    
+    .btn-accept {
+      background: var(--success-color);
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+    .btn-accept:hover { opacity: 0.9; }
+
+    .status-msg { margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 0.9rem; text-align: center; display: none; }
+    .status-msg.success { background: rgba(16, 185, 129, 0.15); color: var(--success-color); border: 1px solid var(--success-color); }
+    .status-msg.error { background: rgba(239, 68, 68, 0.15); color: var(--danger-color); border: 1px solid var(--danger-color); }
+    
+    footer {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header>
+      <h1>منصة خدماتي</h1>
+      <p>صلة الوصل السريعة بين الزبائن وأصحاب المهن</p>
+    </header>
+
+    <!-- 1. الشاشة الرئيسية: اختيار نية الدخول -->
+    <div id="roleScreen" class="screen active">
+      <p style="text-align: center; margin-bottom: 15px; color: var(--text-muted);">اختر كيف تريد الاستمرار:</p>
+      <div class="role-grid">
+        <div class="role-card" onclick="switchScreen('customerScreen')">
+          <span class="icon">🙋‍♂️</span>
+          <h3>أنا زبون</h3>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">أبحث عن حرفي لإنجاز عمل</p>
+        </div>
+        <div class="role-card" onclick="checkSavedWorker()">
+          <span class="icon">🛠️</span>
+          <h3>أنا صاحب مهنة</h3>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">استقبال الطلبات بحسب تخصصك</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. شاشة الزبون: طلب خدمة -->
+    <div id="customerScreen" class="screen">
+      <button class="btn-back" onclick="switchScreen('roleScreen')">➔ العودة للرئيسية</button>
+      
+      <form id="customerForm">
+        <div class="form-group">
+          <label>المحافظة:</label>
+          <select id="customerCity">
+            <option value="ميسان">ميسان</option>
+            <option value="بغداد">بغداد</option>
+            <option value="البصرة">البصرة</option>
+            <option value="النجف">النجف</option>
+            <option value="ذي قار">ذي قار</option>
+            <option value="كربلاء">كربلاء</option>
+            <option value="بابل">بابل</option>
+            <option value="واسط">واسط</option>
+            <option value="الديوانية">الديوانية</option>
+            <option value="المثنى">المثنى</option>
+            <option value="ديالى">ديالى</option>
+            <option value="الأنبار">الأنبار</option>
+            <option value="صلاح الدين">صلاح الدين</option>
+            <option value="نينوى">نينوى</option>
+            <option value="كركوك">كركوك</option>
+            <option value="أربيل">أربيل</option>
+            <option value="السليمانية">السليمانية</option>
+            <option value="دهوك">دهوك</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>نوع الخدمة / الحرفة المطلوبة (مثال: نجار، كهربائي، سباك...)</label>
+          <input type="text" id="custCraft" required placeholder="اكتب التخصص الذي تحتاجه...">
+        </div>
+
+        <div class="form-group">
+          <label>اسم الزبون الكامل</label>
+          <input type="text" id="custName" required placeholder="أدخل اسمك">
+        </div>
+
+        <div class="form-group">
+          <label>رقم الهاتف</label>
+          <input type="tel" id="custPhone" required placeholder="07XXXXXXXXX">
+        </div>
+
+        <div class="form-group">
+          <label>تفاصيل المشكلة / العمل المطلوب</label>
+          <textarea id="custDesc" required placeholder="اشرح ما تحتاجه بالتفصيل..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>الموقع الجغرافي (لتسهيل وصول الحرفي إليك)</label>
+          <button type="button" class="location-btn" id="geoBtn">📍 تحديد موقعي الحالي عبر GPS</button>
+          <input type="hidden" id="geoLat">
+          <input type="hidden" id="geoLng">
+          <div id="geoStatus" style="font-size: 0.8rem; margin-top: 6px; text-align: center; color: var(--text-muted);"></div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="custSubmitBtn">إرسال الطلب للحرفيين</button>
+      </form>
+    </div>
+
+    <!-- 3. شاشة تسجيل/دخول الحرفي -->
+    <div id="workerRegisterScreen" class="screen">
+      <button class="btn-back" onclick="switchScreen('roleScreen')">➔ العودة للرئيسية</button>
+      <h3 style="margin-bottom: 15px;">تسجيل بيانات صاحب المهنة</h3>
+      
+      <form id="workerForm">
+        <div class="form-group">
+          <label>الاسم الكامل</label>
+          <input type="text" id="workerName" required placeholder="أدخل اسمك أو اسم الورشة">
+        </div>
+        <div class="form-group">
+          <label>المحافظة / المدينة</label>
+          <select id="workerCity">
+            <option value="ميسان">ميسان</option>
+            <option value="بغداد">بغداد</option>
+            <option value="البصرة">البصرة</option>
+            <option value="النجف">النجف</option>
+            <option value="ذي قار">ذي قار</option>
+            <option value="كربلاء">كربلاء</option>
+            <option value="بابل">بابل</option>
+            <option value="واسط">واسط</option>
+            <option value="الديوانية">الديوانية</option>
+            <option value="المثنى">المثنى</option>
+            <option value="ديالى">ديالى</option>
+            <option value="الأنبار">الأنبار</option>
+            <option value="صلاح الدين">صلاح الدين</option>
+            <option value="نينوى">نينوى</option>
+            <option value="كركوك">كركوك</option>
+            <option value="أربيل">أربيل</option>
+            <option value="السليمانية">السليمانية</option>
+            <option value="دهوك">دهوك</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>حرفتك أو تخصصك الدقيق</label>
+          <input type="text" id="workerCraft" required placeholder="مثال: نجار، كهربائي، تصليح سبالت...">
+        </div>
+        <button type="submit" class="btn-submit">حفظ البيانات والدخول للوحة الطلبات</button>
+      </form>
+    </div>
+
+    <!-- 4. لوحة الحرفي: استقبال الطلبات المخصصة -->
+    <div id="workerDashboard" class="screen">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <button class="btn-back" style="margin:0;" onclick="switchScreen('roleScreen')">➔ الرئيسية</button>
+        <button class="btn-back" style="margin:0; color: var(--danger-color);" onclick="logoutWorker()">تغيير المهنة / خروج</button>
+      </div>
+
+      <div id="workerProfileHeader" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 14px; border-radius: 12px; margin-bottom: 18px;">
+        <!-- بيانات الحرفي -->
+      </div>
+      
+      <h4 style="margin-bottom: 10px;">الطلبات الواردة لتخصصك ومحافظتك:</h4>
+      <div class="orders-list" id="ordersContainer">
+        <!-- تظهر الطلبات هنا تلقائياً -->
+      </div>
+    </div>
+
+    <div id="statusMsg" class="status-msg"></div>
+
+    <footer>
+      تمت البرمجة بواسطة قاسم عباس &copy; 2026
+    </footer>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // --- إعدادات Firebase الخاصة بك ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCP8s_aBz9rlkIpqfr4xvAagpwl_LN0fPw",
+      authDomain: "hggggggf-7add9.firebaseapp.com",
+      projectId: "hggggggf-7add9",
+      storageBucket: "hggggggf-7add9.firebasestorage.app",
+      messagingSenderId: "132559580789",
+      appId: "1:132559580789:web:aa2b392297165373fe123c",
+      measurementId: "G-MNNWNJ8B0Q"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let currentWorker = null;
+    let unsubscribeOrders = null;
+    let isInitialLoad = true;
+
+    // دالة تشغيل صوت تنبيه عند وصول طلب جديد
+    function playNotificationSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+      } catch (e) { console.log("Audio blocked"); }
+    }
+
+    window.switchScreen = function(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    };
+
+    window.checkSavedWorker = function() {
+      const saved = localStorage.getItem('khadamati_worker');
+      if (saved) {
+        currentWorker = JSON.parse(saved);
+        loadWorkerDashboard();
+      } else {
+        switchScreen('workerRegisterScreen');
+      }
+    };
+
+    window.logoutWorker = function() {
+      localStorage.removeItem('khadamati_worker');
+      if (unsubscribeOrders) unsubscribeOrders();
+      currentWorker = null;
+      switchScreen('workerRegisterScreen');
+    };
+
+    // جلب موقع الزبون GPS
+    document.getElementById('geoBtn').addEventListener('click', () => {
+      const geoStatus = document.getElementById('geoStatus');
+      if (!navigator.geolocation) {
+        geoStatus.textContent = "المتصفح لا يدعم تحديد الموقع.";
+        return;
+      }
+      geoStatus.textContent = "جاري تحديد موقعك...";
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          document.getElementById('geoLat').value = pos.coords.latitude;
+          document.getElementById('geoLng').value = pos.coords.longitude;
+          geoStatus.textContent = "✅ تم إرفاق موقعك الجغرافي بنجاح";
+          geoStatus.style.color = "var(--success-color)";
+        },
+        () => {
+          geoStatus.textContent = "⚠️ تعذر تحديد الموقع، تأكد من تفعيل الـ GPS.";
+          geoStatus.style.color = "var(--danger-color)";
+        }
+      );
+    });
+
+    // إرسال طلب من الزبون
+    document.getElementById('customerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('custSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = "جاري إرسال الطلب...";
+
+      const orderData = {
+        city: document.getElementById('customerCity').value,
+        craft: document.getElementById('custCraft').value.trim().toLowerCase(),
+        customerName: document.getElementById('custName').value.trim(),
+        customerPhone: document.getElementById('custPhone').value.trim(),
+        description: document.getElementById('custDesc').value.trim(),
+        lat: document.getElementById('geoLat').value || null,
+        lng: document.getElementById('geoLng').value || null,
+        status: "pending",
+        acceptedBy: null,
+        createdAt: serverTimestamp()
+      };
+
+      try {
+        await addDoc(collection(db, "orders"), orderData);
+        showMsg("تم إرسال طلبك بنجاح! سيظهر فوراً لأصحاب المهنة في محافظتك.", "success");
+        document.getElementById('customerForm').reset();
+        document.getElementById('geoStatus').textContent = "";
+        setTimeout(() => switchScreen('roleScreen'), 2000);
+      } catch (err) {
+        console.error(err);
+        showMsg("حدث خطأ أثناء إرسال الطلب.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "إرسال الطلب للحرفيين";
+      }
+    });
+
+    // تسجيل دخول الحرفي
+    document.getElementById('workerForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      currentWorker = {
+        name: document.getElementById('workerName').value.trim(),
+        city: document.getElementById('workerCity').value,
+        craft: document.getElementById('workerCraft').value.trim().toLowerCase()
+      };
+      localStorage.setItem('khadamati_worker', JSON.stringify(currentWorker));
+      loadWorkerDashboard();
+    });
+
+    function loadWorkerDashboard() {
+      document.getElementById('workerProfileHeader').innerHTML = `
+        <div style="font-size: 1.05rem;"><strong>أهلاً بك، ${currentWorker.name} 🛠️</strong></div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
+          التخصص: <span style="color:#fff;">${currentWorker.craft}</span> | المحافظة: <span style="color:#fff;">${currentWorker.city}</span>
+        </div>
+      `;
+      switchScreen('workerDashboard');
+      listenToMatchingOrders(currentWorker.city, currentWorker.craft);
+    }
+
+    // الاستماع للطلبات المطابقة
+    function listenToMatchingOrders(city, workerCraft) {
+      const ordersContainer = document.getElementById('ordersContainer');
+      ordersContainer.innerHTML = "<p style='color: var(--text-muted); text-align:center;'>جاري البحث عن طلبات في محافظتك...</p>";
+      isInitialLoad = true;
+
+      if (unsubscribeOrders) unsubscribeOrders();
+
+      const q = query(collection(db, "orders"), where("city", "==", city));
+
+      unsubscribeOrders = onSnapshot(q, (snapshot) => {
+        ordersContainer.innerHTML = "";
+        let matchCount = 0;
+
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "added" && !isInitialLoad) {
+            const data = change.doc.data();
+            if (isCraftMatch(data.craft, workerCraft)) {
+              playNotificationSound();
+            }
+          }
+        });
+        isInitialLoad = false;
+
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          const orderId = docSnap.id;
+
+          if (isCraftMatch(data.craft, workerCraft)) {
+            matchCount++;
+            const isAccepted = data.status === "accepted";
+            
+            const mapButton = (data.lat && data.lng) 
+              ? `<a href="https://www.google.com/maps?q=${data.lat},${data.lng}" target="_blank" class="action-link map-link">📍 موقع الزبون</a>`
+              : ``;
+
+            const statusAction = isAccepted
+              ? `<span style="color: var(--success-color); font-size: 0.85rem; font-weight: bold;">✅ تم القبول بواسطة: ${data.acceptedBy}</span>`
+              : `<button class="btn-accept" onclick="acceptOrder('${orderId}')">قبول الطلب</button>`;
+
+            const orderCard = `
+              <div class="order-item ${isAccepted ? 'accepted' : ''}">
+                <div class="order-header">
+                  <span>👤 ${data.customerName}</span>
+                  <span class="order-badge">${data.craft}</span>
+                </div>
+                <div class="order-desc">${data.description}</div>
+                <div class="order-actions">
+                  <div style="display:flex; gap:8px;">
+                    <a href="tel:${data.customerPhone}" class="action-link phone-link">📞 ${data.customerPhone}</a>
+                    ${mapButton}
+                  </div>
+                  ${statusAction}
+                </div>
+              </div>
+            `;
+            ordersContainer.innerHTML += orderCard;
+          }
+        });
+
+        if (matchCount === 0) {
+          ordersContainer.innerHTML = `<p style='color: var(--text-muted); text-align: center; padding: 25px;'>لا توجد طلبات حالية لتخصص (${workerCraft}) في محافظة ${city}.</p>`;
+        }
+      });
+    }
+
+    function isCraftMatch(orderCraft, workerCraft) {
+      const normalize = (str) => str.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').trim();
+      const o = normalize(orderCraft);
+      const w = normalize(workerCraft);
+      return o.includes(w) || w.includes(o);
+    }
+
+    window.acceptOrder = async function(orderId) {
+      try {
+        const orderRef = doc(db, "orders", orderId);
+        await updateDoc(orderRef, {
+          status: "accepted",
+          acceptedBy: currentWorker.name
+        });
+      } catch (err) {
+        console.error(err);
+        alert("تعذر قبول الطلب، حاول مرة أخرى.");
+      }
+    };
+
+    function showMsg(text, type) {
+      const el = document.getElementById('statusMsg');
+      el.textContent = text;
+      el.className = `status-msg ${type}`;
+      el.style.display = "block";
+      setTimeout(() => { el.style.display = "none"; }, 4000);
+    }
+  </script>
+</body>
+</html>
